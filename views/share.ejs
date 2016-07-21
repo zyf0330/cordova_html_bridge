@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta http-equiv="Content-Security-Policy" content="default-src 'self' cdvfile: http: ws: data: gap: https://ssl.gstatic.com 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; media-src * data: blob:">
+	<meta name="format-detection" content="telephone=no">
+	<meta name="msapplication-tap-highlight" content="no">
+	<meta name="viewport" content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width">
+	<title>share</title>
+</head>
+<body>
+<br><button onclick="history.go(-1)">返回</button><button onclick="location.reload()">刷新</button>
+<div id="main">
+	<div v-text="msg"></div>
+	<div>
+		<h5>分享</h5>
+		<div>message: <input type="text" v-model="message"></div>
+		<div>subject: <input type="text" v-model="subject"></div>
+		<div>url: <input type="text" v-model="url"></div>
+		<div>files: <textarea v-model="files"></textarea></div>
+
+		<button @click="share">share</button>
+	</div>
+</div>
+</body>
+<script type="text/javascript" src="cdvfile://localhost/<%=locals.cdv_appDir%>/www/cordova.js"></script>
+<script type="text/javascript" src="cdvfile://localhost/<%=locals.cdv_appDir%>/www/js/vue.js"></script>
+<script type="text/javascript" src="cdvfile://localhost/<%=locals.cdv_appDir%>/www/js/vue-resource.min.js"></script>
+<script type="text/javascript" src="js/native.js"></script>
+<script type="text/javascript" src="js/common.js"></script>
+<script>
+	document.addEventListener('deviceready', function () {
+		var vm_main = new Vue({
+			el: '#main',
+			data: {
+				msg: null,
+				message: 'message',
+				subject: 'subject',
+				url: 'http://www.google.com',
+				files: 'data:image/webp;base64,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',
+			},
+			methods: {
+				share: function () {
+					this.msg = null;
+					share({
+						message: this.message,
+						subject: this.subject,
+						files: this.files.split('\n'),
+						url: this.url,
+					}, function(err, result){
+						if(err){
+							this.msg = err.message;
+						}else{
+							this.msg = JSON.strignify(result);
+						}
+					})
+				}
+			},
+			ready: function () {
+
+			}
+		})
+	});
+</script>
+</html>

@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta http-equiv="Content-Security-Policy" content="default-src 'self' cdvfile: http: ws: data: gap: https://ssl.gstatic.com 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; media-src * data: blob:">
+	<meta charset="utf-8"/>
+	<meta name="viewport" content="initial-scale=1.0,width=device-width,user-scalable=no"/>
+	<meta http-equiv="X-UA-Compatible" content="IE=Edge"/>
+	<meta name="MobileOptimized" content="320">
+	<title>Title</title>
+</head>
+<body>
+<br><button onclick="history.go(-1)">返回</button><button onclick="location.reload()">刷新</button>
+<div id="main">
+	<div v-text="msg"></div>
+	<div v-text="url"></div>
+	<video :src="video_url"></video>
+	<button @click="audio">audio</button>
+	<button @click="video">video</button>
+	<br>
+	<div v-text="file"></div>
+	<button @click="tofile">tofile</button>
+</div>
+</body>
+<script type="text/javascript" src="cdvfile://localhost/<%=locals.cdv_appDir%>/www/cordova.js"></script>
+<script type="text/javascript" src="cdvfile://localhost/<%=locals.cdv_appDir%>/www/js/vue.js"></script>
+<script type="text/javascript" src="cdvfile://localhost/<%=locals.cdv_appDir%>/www/js/vue-resource.min.js"></script>
+<script type="text/javascript" src="js/native.js"></script>
+<script type="text/javascript" src="js/common.js"></script>
+<script>
+	document.addEventListener('deviceready', function () {
+		var vm_main = new Vue({
+			el: '#main',
+			data: {
+				msg: null,
+				url: null,
+				file: null,
+				video_url: null
+			}, methods: {
+				audio: function () {
+					this.msg = this.url = null;
+					captureAudio(function (err, audio) {
+						if(err){
+							this.msg = err.message;
+						}else{
+							this.url = audio.url
+						}
+					}.bind(this));
+				}, video: function () {
+					this.msg = this.url = null;
+					captureVideo(function (err, video) {
+						if(err){
+							this.msg = err.message;
+						}else{
+							this.video_url = this.url = video.url;
+						}
+					}.bind(this))
+				}, tofile: function () {
+					this.file = null;
+					urlToFile(this.url, function (err, file) {
+						if(err){
+							this.msg = err.message
+						}else{
+							this.file = JSON.stringify({
+								name: file.name,
+								type: file.type,
+								size: file.size
+							})
+						}
+					}.bind(this))
+				}
+			}, ready: function () {
+			}
+		});
+	}, false);
+
+
+</script>
+</html>

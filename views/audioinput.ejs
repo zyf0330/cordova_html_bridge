@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta http-equiv="Content-Security-Policy"
+	      content="default-src 'self' cdvfile: http: ws: data: gap: https://ssl.gstatic.com 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; media-src * data: blob:">
+	<meta charset="utf-8"/>
+	<meta name="viewport" content="initial-scale=1.0,width=device-width,user-scalable=no"/>
+	<meta http-equiv="X-UA-Compatible" content="IE=Edge"/>
+	<meta name="MobileOptimized" content="320">
+	<title>audioinput</title>
+	<style>
+	</style>
+</head>
+<body>
+<br>
+<button onclick="history.go(-1)">返回</button>
+<button onclick="location.reload()">刷新</button>
+<div id="main">
+	<div style="overflow:auto">
+		<canvas id="canvas" v-el:canvas width="10000" height="300" style="border:1px solid lightgray"></canvas>
+	</div>
+	<div v-text="msg"></div>
+	<div v-text="status"></div>
+	<div>时长：<span v-text="duration"></span></div>
+	<div>长度：<span v-text="data.length"></span></div>
+	<audio v-el:audio></audio>
+	<button @click="start">start</button>
+	<button @click="stop">stop</button>
+	<button @click="play">play</button>
+	<button @click="stopPlay">stopPlay</button>
+	<button @click="towav">towav</button>
+	<button @click="clean">clean</button>
+	<button @click="destroy">destroy</button>
+	<br>
+	<button @click="draw">draw</button>
+</div>
+</body>
+<script type="text/javascript" src="cdvfile://localhost/<%= locals.cdv_appDir %>/www/cordova.js"></script>
+<script type="text/javascript" src="cdvfile://localhost/<%= locals.cdv_appDir %>/www/js/vue.js"></script>
+<script type="text/javascript" src="cdvfile://localhost/<%= locals.cdv_appDir %>/www/js/vue-resource.min.js"></script>
+<script type="text/javascript" src="js/native.js"></script>
+<script type="text/javascript" src="js/common.js"></script>
+<script>
+	document.addEventListener('deviceready', function () {
+		var vm_main = new Vue({
+			el: '#main',
+			data: {
+				msg: null,
+				status: null,
+				duration: null,
+				data: [],
+				ar: null
+			}, methods: {
+				metadata: function () {
+					this.status = this.ar.isCapturing;
+					this.duration = this.ar.duration;
+				}, stop: function () {
+					this.ar.stop();
+				}, start: function () {
+					this.data = [], this.msg = null;
+					this.ar.start(true);
+				}, play: function () {
+					this.ar.play();
+				}, stopPlay: function () {
+					this.ar.stopPlay()
+				}, towav: function () {
+					return window.wav = this.ar.toWAV();
+				}, clean: function () {
+					this.ar.clean();
+				}, destroy: function () {
+					this.ar.destroy()
+				}, draw: function () {
+					var canvas = this.$els.canvas, ctx = canvas.getContext("2d"), scaleX = 0.1, scaleY = 500, baseY = canvas.height / 2, data = this.data;
+					ctx.clearRect(0, 0, canvas.width, canvas.height);
+					//画出坐标系
+					ctx.strokeStyle = 'black';
+					ctx.lineWidth = 0.5;
+					ctx.beginPath();
+					ctx.moveTo(0, baseY);
+					ctx.lineTo(canvas.width, baseY);
+					ctx.stroke();
+					var time = 100;//ms
+					ctx.fillText(time + 'ms', 1, 10, 100);
+					for (var i = 0, l = data.length, step = parseInt(l / (this.duration * 1000 / time)); i < l; i += step) {
+						ctx.fillRect(i * scaleX, 0, 0.5, canvas.height);
+					}
+					//绘制曲线
+					var x, y;
+					ctx.strokeStyle = 'red';
+					ctx.beginPath();
+					ctx.moveTo(0, baseY);
+					for (var i in data) {
+						if (i >= 100000) {
+							break;
+						}
+						x = i * scaleX;
+						y = data[i] * scaleY + baseY;
+						if (i == 300) {
+							ctx.stroke();
+							ctx.strokeStyle = 'green';
+							ctx.beginPath();
+							ctx.moveTo(x, y);
+						}
+						ctx.lineTo(x, y);
+					}
+					ctx.stroke();
+				}
+			}, ready: function () {
+				this.ar = new AudioRecorder();
+				setInterval(this.metadata, 200);
+				this.ar.onerror = function (err) {
+					this.msg = err.message;
+				}.bind(this);
+				this.ar.ondata = function (data) {
+					this.data = this.data.concat(data)
+				}.bind(this);
+				Object.defineProperty(window, 'data', {
+					get: function () {
+						return this.data;
+					}.bind(this)
+				})
+			}
+		});
+	}, false);
+
+
+</script>
+</html>

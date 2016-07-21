@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta http-equiv="Content-Security-Policy" content="default-src 'self' cdvfile: http: ws: data: gap: https://ssl.gstatic.com 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; media-src * data: blob:">
+	<meta charset="utf-8"/>
+	<meta http-equiv="X-UA-Compatible" content="IE=Edge"/>
+	<meta name="MobileOptimized" content="320">
+	<meta name="format-detection" content="telephone=no">
+	<meta name="msapplication-tap-highlight" content="no">
+	<meta name="viewport" content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width">
+	<title>Title</title>
+</head>
+<body>
+<br><button onclick="history.go(-1)">返回</button><button onclick="location.reload()">刷新</button>
+<div id="main">
+	<div v-text="id"></div>
+	<div>msg_id: <span v-text="msg_id"></span></div>
+	<div v-text="status"></div>
+	<div v-text="status2"></div>
+	<div>
+		<div>open</div>
+		<div v-text="open"></div>
+	</div>
+	<div>
+		<div>receive</div>
+		<div v-text="receive"></div>
+	</div>
+	<div>
+		<div>receiveMessage</div>
+		<div v-text="receiveMessage"></div>
+	</div>
+	<button @click="resume">resume</button>
+	<button @click="stop">stop</button>
+	<button @click="getId">getId</button>
+	<button @click="isStop">isStop</button>
+	<button @click="isDeny">isDeny</button>
+	<button @click="reduce">reduce</button>
+</div>
+</body>
+<script type="text/javascript" src="cdvfile://localhost/<%=locals.cdv_appDir%>/www/cordova.js"></script>
+<script type="text/javascript" src="cdvfile://localhost/<%=locals.cdv_appDir%>/www/js/vue.js"></script>
+<script type="text/javascript" src="cdvfile://localhost/<%=locals.cdv_appDir%>/www/js/vue-resource.min.js"></script>
+<script type="text/javascript" src="js/native.js"></script>
+<script type="text/javascript" src="js/common.js"></script>
+<script>
+	document.addEventListener('deviceready', function () {
+		var vm_main = new Vue({
+			el: '#main',
+			data: {
+				status: null,
+				status2: null,
+				id: null,
+				open: null,
+				receive: null,
+				receiveMessage: null,
+				msg_id: location.search.split('=')[1]
+			}, methods: {
+				stop: function () {
+					notification.stopPush();
+				}, resume: function () {
+					notification.resumePush();
+				}, getId: function () {
+					notification.getPushID(function(id){
+						this.id = id;
+					}.bind(this))
+				}, isStop: function () {
+					notification.isPushStopped(function (r) {
+						this.status = (r ? '停止' : '正在') + '推送'
+					}.bind(this))
+				}, isDeny: function () {
+					notification.isPushDenied(function (r) {
+						this.status2 = (r ? '禁止' : '允许') + '推送'
+					}.bind(this))
+				}, reduce: function () {
+					notification.reduceBadge();
+				}
+			}, ready: function () {
+				var _this = this;
+			}
+		});
+	}, false);
+
+
+</script>
+</html>

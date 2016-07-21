@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta http-equiv="Content-Security-Policy" content="default-src 'self' cdvfile: http: ws: data: gap: https://ssl.gstatic.com 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; media-src * data: blob:">
+	<meta name="format-detection" content="telephone=no">
+	<meta name="msapplication-tap-highlight" content="no">
+	<meta name="viewport" content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width">
+	<title>pay</title>
+</head>
+<body>
+<br><button onclick="history.go(-1)">返回</button><button onclick="location.reload()">刷新</button>
+<div id="main">
+	<div v-text="msg"></div>
+	<button @click="wxapp">wxapp</button>
+	<button @click="ali_app">aliapp</button>
+</div>
+</body>
+<script type="text/javascript" src="cdvfile://localhost/<%=locals.cdv_appDir%>/www/cordova.js"></script>
+<script type="text/javascript" src="cdvfile://localhost/<%=locals.cdv_appDir%>/www/js/vue.js"></script>
+<script type="text/javascript" src="cdvfile://localhost/<%=locals.cdv_appDir%>/www/js/vue-resource.min.js"></script>
+<script>
+	document.addEventListener('deviceready', function () {
+		console.log('deviceready')
+		var bc = navigator.plugins.beecloud;
+		var vm_main = new Vue({
+			el: '#main',
+			data: {
+				title: 'title',
+				totalfee: 1,
+				orderNo: 'aaa12312313',
+				msg: 'start'
+			},
+			methods: {
+				wxapp: function () {
+					bc.pay.wx_app(this.title, this.totalfee, this.orderNo, null, function (err, result) {
+						if(err){
+							this.msg = err.message;
+						}else{
+							this.msg = result
+						}
+					}.bind(this));
+				}, ali_app: function () {
+					bc.pay.ali_app(this.title, this.totalfee, this.orderNo, {test: true}, function (err, result) {
+						if(err){
+							this.msg = err.message;
+						}else{
+							this.msg = result
+						}
+					}.bind(this));
+				}
+			}, ready: function () {
+				bc.pay.init();
+			}
+		})
+	});
+</script>
+</html>

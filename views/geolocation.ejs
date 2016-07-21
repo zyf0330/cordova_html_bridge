@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta http-equiv="Content-Security-Policy" content="default-src 'self' cdvfile: http: ws: data: gap: https://ssl.gstatic.com 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; media-src * data: blob:">
+	<meta charset="utf-8"/>
+	<meta name="viewport" content="initial-scale=1.0,width=device-width,user-scalable=no"/>
+	<meta http-equiv="X-UA-Compatible" content="IE=Edge"/>
+	<meta name="MobileOptimized" content="320">
+	<title>Title</title>
+</head>
+<body>
+<br><button onclick="history.go(-1)">返回</button><button onclick="location.reload()">刷新</button>
+	<div id="main">
+		<button @click="getPosition">getPosition</button>
+		<div v-text="position"></div>
+		<div v-text="err" style="color:red;"></div>
+	</div>
+		<div id="allmap"></div>
+</body>
+<script type="text/javascript" src="cdvfile://localhost/<%=locals.cdv_appDir%>/www/cordova.js"></script>
+<script type="text/javascript" src="cdvfile://localhost/<%=locals.cdv_appDir%>/www/js/vue.js"></script>
+<script type="text/javascript" src="cdvfile://localhost/<%=locals.cdv_appDir%>/www/js/vue-resource.min.js"></script>
+<script type="text/javascript" src="js/native.js"></script>
+<script type="text/javascript" src="js/common.js"></script>
+<script>
+	var vm_main = new Vue({
+		el: '#main',
+		data: {
+			err: null,
+			position: null
+		}, methods: {
+			getPosition: function () {
+				this.err = null;
+				currentPosition(1000, function (err, position) {
+					if(err){
+						this.err = err + '';
+					}else{
+						var coords = position.coords;
+						this.position = "longitude: " + coords.longitude + ', latitude: ' + coords.latitude + ', accuracy: ' + coords.accuracy;
+					}
+				}.bind(this));
+			}
+		}
+	});
+</script>
+</html>

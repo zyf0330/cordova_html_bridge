@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta http-equiv="Content-Security-Policy" content="default-src 'self' cdvfile: http: ws: data: gap: https://ssl.gstatic.com 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; media-src * data: blob:">
+	<meta name="format-detection" content="telephone=no">
+	<meta name="msapplication-tap-highlight" content="no">
+	<meta name="viewport" content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width">
+	<title>forward</title>
+	<style>
+	</style>
+</head>
+<body>
+<br>
+<button onclick="history.go(-1)">返回</button>
+<button onclick="location.reload()">刷新</button>
+<div id="main">
+
+	<div v-if="!!msg" v-text="msg" style="color:red;"></div>
+	<button @click="start">start</button>
+	<button @click="stop">stop</button>
+	<button @click="capture">capture</button>
+	<button @click="switchFacing">switchFacing</button>
+
+	<br>
+	<div id="div" v-el:div :style="{'z-index':-1,'border': '1px solid red','width':width,'height':height,margin:'auto'}"></div>
+	<div>
+		<h5>IMG</h5>
+		<img :src="src" alt="">
+	</div>
+
+</div>
+</body>
+<script type="text/javascript" src="cdvfile://localhost/<%= locals.cdv_appDir %>/www/cordova.js"></script>
+<!--<script type="text/javascript" src="cdvfile://localhost/<%= locals.cdv_appDir %>/www/js/vue.js"></script>-->
+<!--<script type="text/javascript" src="cdvfile://localhost/<%= locals.cdv_appDir %>/www/js/vue-resource.min.js"></script>-->
+<!--<script type="text/javascript" src="cdvfile://localhost/<%= locals.cdv_appDir %>/www/native.js"></script>-->
+<script src="js/vue.js"></script>
+<!--<script src="js/vue-resource.min.js"></script>-->
+<script src="js/native.js"></script>
+<script src="js/common.js"></script>
+
+<script>
+	document.addEventListener('deviceready', function () {
+		var vm_main = new Vue({
+			el: '#main',
+			data: {
+				src: null,
+				msg: '',
+				height: 360,
+				width: 240,
+				facing: 'front',
+				cp: null,
+			},
+			methods: {
+				init: function () {
+					this.cp = new CameraPreviewer(this.$els.div, {
+						height: this.height,
+						width: this.width,
+						facing: this.facing,
+					});
+					this.cp.onerror = function (err) {
+						this.msg = err.message
+					}.bind(this)
+				}, start: function () {
+					this.cp.start();
+				}, stop: function () {
+					this.cp.stop();
+				}, capture: function () {
+					this.cp.capture(function (r) {
+						this.src = r;
+					}.bind(this));
+				}, switchFacing: function (facing) {
+					this.cp.switchFacing();
+				}
+			}, ready: function () {
+				this.init();
+			}
+		})
+	});
+
+
+</script>
+</html>

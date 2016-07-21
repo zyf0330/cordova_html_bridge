@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta http-equiv="Content-Security-Policy" content="default-src 'self' cdvfile: http: ws: data: gap: https://ssl.gstatic.com 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; media-src * data: blob:">
+	<meta name="format-detection" content="telephone=no">
+	<meta name="msapplication-tap-highlight" content="no">
+	<meta name="viewport" content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width">
+	<title>forward</title>
+</head>
+<body>
+<br><button onclick="history.go(-1)">返回</button><button onclick="location.reload()">刷新</button>
+<div id="main">
+	<img :src="uri" alt="" style="max-height: 320px;max-width: 180px;">
+	<div v-if="!!msg" v-text="msg" style="color:red;"></div>
+	<button @click="capturePic">capture image</button>
+	<button @click="selectPicFromLibrary">select from library</button>
+</div>
+</body>
+<script type="text/javascript" src="cdvfile://localhost/<%=locals.cdv_appDir%>/www/cordova.js"></script>
+<script type="text/javascript" src="cdvfile://localhost/<%=locals.cdv_appDir%>/www/js/vue.js"></script>
+<script type="text/javascript" src="cdvfile://localhost/<%=locals.cdv_appDir%>/www/js/vue-resource.min.js"></script>
+<script type="text/javascript" src="js/native.js"></script>
+<script type="text/javascript" src="js/common.js"></script>
+<script>
+	document.addEventListener('deviceready', function () {
+		var vm_main = new Vue({
+			el: '#main',
+			data: {
+				uri: null,
+				msg: 'start',
+				height: 100,
+				width: 100,
+				direction: 'front'
+			},
+			methods: {
+				capturePic: function () {
+					this.msg = null;
+					capturePic(this.height, this.width, this.direction, function (err, uri) {
+						if(err){
+							this.msg = err.message;
+						}else{
+							this.uri = uri
+						}
+					}.bind(this));
+				}, selectPicFromLibrary: function () {
+					this.msg = null;
+					selectPicFromLibrary(this.height, this.width, function (err, uri) {
+						if(err){
+							this.msg = err.message;
+						}else{
+							this.uri = uri;
+						}
+					}.bind(this));
+				}
+			}
+		})
+	});
+</script>
+</html>

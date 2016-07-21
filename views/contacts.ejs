@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta http-equiv="Content-Security-Policy" content="default-src 'self' cdvfile: http: ws: data: gap: https://ssl.gstatic.com 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; media-src * data: blob:">
+	<meta name="format-detection" content="telephone=no">
+	<meta name="msapplication-tap-highlight" content="no">
+	<meta name="viewport" content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width">
+	<title>forward</title>
+</head>
+<body>
+<br><button onclick="history.go(-1)">返回</button><button onclick="location.reload()">刷新</button>
+<div id="main">
+	<div v-text="msg" style="color:red;"></div>
+	<button @click="pickOne">pickOne</button>
+	<div v-text="contact" v-text="contact"></div>
+	<br>
+	<button @click="list">listContact</button>
+	<div>
+		<h5>contacts</h5>
+		<div v-text="contacts"></div>
+	</div>
+</div>
+</body>
+<script type="text/javascript" src="cdvfile://localhost/<%=locals.cdv_appDir%>/www/cordova.js"></script>
+<script type="text/javascript" src="cdvfile://localhost/<%=locals.cdv_appDir%>/www/js/vue.js"></script>
+<script type="text/javascript" src="cdvfile://localhost/<%=locals.cdv_appDir%>/www/js/vue-resource.min.js"></script>
+<script type="text/javascript" src="js/native.js"></script>
+<script type="text/javascript" src="js/common.js"></script>
+<script>
+	document.addEventListener('deviceready', function () {
+		var vm_main = new Vue({
+			el: '#main',
+			data: {
+				msg: 'start',
+				contact: null,
+				contacts: null
+			},
+			methods: {
+				pickOne: function () {
+					this.msg = null;
+					pickContact(function (err, contact) {
+						if(err){
+							this.msg = err.message;
+						}else{
+							this.contact = JSON.stringify(contact);
+						}
+					}.bind(this));
+				}, list: function () {
+					this.msg = null;
+					listContact(function (err, contacts) {
+						if(err){
+							this.msg = err.message;
+						}else{
+							this.contacts = JSON.stringify(contacts);
+						}
+					}.bind(this));
+				}
+			}
+		})
+	});
+</script>
+</html>
