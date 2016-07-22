@@ -811,7 +811,6 @@ function share(option, cb){
 					var average = subArr.reduce(function (sum, o) {
 							return sum + Math.abs(o);
 						}, 0) / subArr.length;
-					console.log(average)
 					if (average >= _this.noiseThreshold) {
 						vibrate(10);
 						break;
