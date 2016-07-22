@@ -23,16 +23,26 @@
 	<div v-text="status"></div>
 	<div>时长：<span v-text="duration"></span></div>
 	<div>长度：<span v-text="data.length"></span></div>
+	<div>最大：<span v-text="max"></span></div>
 	<audio v-el:audio></audio>
-	<button @click="start">start</button>
-	<button @click="stop">stop</button>
-	<button @click="play">play</button>
-	<button @click="stopPlay">stopPlay</button>
-	<button @click="towav">towav</button>
-	<button @click="clean">clean</button>
-	<button @click="destroy">destroy</button>
-	<br>
-	<button @click="draw">draw</button>
+	<div>
+		<button @click="start">start</button>
+		<button @click="stop">stop</button>
+	</div>
+	<div>
+		speaker: <input type="radio" name="toggle" onclick="AudioToggle.setAudioMode(AudioToggle.SPEAKER)">
+		earpiece: <input type="radio" name="toggle" onclick="AudioToggle.setAudioMode(AudioToggle.EARPIECE)">
+		<button @click="play">play</button>
+		<button @click="stopPlay">stopPlay</button>
+	</div>
+	<div>
+		<button @click="towav">towav</button>
+		<button @click="draw">draw</button>
+	</div>
+	<div>
+		<button @click="clean">clean</button>
+		<button @click="destroy">destroy</button>
+	</div>
 </div>
 </body>
 <script type="text/javascript" src="cdvfile://localhost/<%= locals.cdv_appDir %>/www/cordova.js"></script>
@@ -48,8 +58,9 @@
 				msg: null,
 				status: null,
 				duration: null,
+				max: null,
 				data: [],
-				ar: null
+				ar: null,
 			}, methods: {
 				metadata: function () {
 					this.status = this.ar.isCapturing;
@@ -57,7 +68,7 @@
 				}, stop: function () {
 					this.ar.stop();
 				}, start: function () {
-					this.data = [], this.msg = null;
+					this.data = [], this.msg = null, this.max = null;
 					this.ar.start(true);
 				}, play: function () {
 					this.ar.play();
@@ -112,13 +123,20 @@
 					this.msg = err.message;
 				}.bind(this);
 				this.ar.ondata = function (data) {
-					this.data = this.data.concat(data)
+					this.data = this.data.concat(data);
+					setTimeout(function () {
+						this.max = data.reduce(function (m, o) {
+							o = Math.abs(o);
+							return m > o ? m : o;
+						}, this.max)
+					}.bind(this), 0);
 				}.bind(this);
 				Object.defineProperty(window, 'data', {
 					get: function () {
 						return this.data;
 					}.bind(this)
-				})
+				});
+
 			}
 		});
 	}, false);

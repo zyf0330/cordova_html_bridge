@@ -493,7 +493,7 @@ function isPushStopped(cb){
 }
 notification.isPushStopped = isPushStopped;
 /**
- * 是否本地禁止推送
+ * 是否本地禁止通知
  * @param cb {function(boolean)} true为禁止
  */
 function isPushDenied(cb){
@@ -779,7 +779,7 @@ function share(option, cb){
 
 			//声音检测震动
 			if(_this.isVibrate == true){
-				_this.noiseThreshold = 0.03;
+				_this.noiseThreshold = device.platform == 'iOS' ? 0.008 : 0.015;
 				// if(_this.noiseThreshold == 0){
 				// 	var offset = -1, length = Math.max(Math.min(50, data.length), 1), filterArr = [];
 				// 	for (var i = 0; i < data.length; i++) {
@@ -801,17 +801,33 @@ function share(option, cb){
 				// 		return d + o;
 				// 	}) / sliceLen * 2;
 				// }
-				var _duration = data.length / _this.cfg.channels / _this.cfg.sampleRate * 1000, interval = 20, step = parseInt(data.length / (_duration / interval));
-				data.reduce(function (sum, o, i) {
-					if(i % step == 0){
-						if(sum / step >= _this.noiseThreshold){
-							vibrate(interval);
-						}
-						return 0;
-					}else{
-						return sum + Math.abs(o);
+				var dataLen = data.length, _duration = dataLen / _this.cfg.channels / _this.cfg.sampleRate * 1000, interval = 50, step = parseInt(dataLen / (_duration / interval));
+				var i = 0;
+				while (i < dataLen) {
+					var subArr = data.slice(i, i + step);
+					subArr = subArr.sort(function (o1, o2) {
+						return Math.abs(o1) < Math.abs(o2);
+					}).slice(0, Math.max(parseInt(step / 10), 40));
+					var average = subArr.reduce(function (sum, o) {
+							return sum + Math.abs(o);
+						}, 0) / subArr.length;
+					console.log(average)
+					if (average >= _this.noiseThreshold) {
+						vibrate(10);
+						break;
 					}
-				}, 0);
+					i += step;
+				}
+				// data.reduce(function (sum, o, i) {
+				// 	if(i % step == 0){
+				// 		if(sum / step >= _this.noiseThreshold){
+				// 			vibrate(interval);
+				// 		}
+				// 		return 0;
+				// 	}else{
+				// 		return sum + Math.abs(o);
+				// 	}
+				// }, 0);
 			}
 		};
 		this.audioinputerror = function (event) {
@@ -1128,4 +1144,18 @@ function vibrate(duration){
 		duration = 10;
 	}
 	navigator.vibrate(duration);
+}
+/**
+ * 切换音源
+ * @param from {string} speaker 喇叭, earpiece 听筒
+ */
+function toggleAudioSource(from){
+	if(!window.AudioToggle){
+		throw new Error('toggleAudioSource is not ready');
+	}
+	if(from == 'speaker'){
+		AudioToggle.setAudioMode(AudioToggle.SPEAKER);
+	}else{
+		AudioToggle.setAudioMode(AudioToggle.EARPIECE);
+	}
 }
