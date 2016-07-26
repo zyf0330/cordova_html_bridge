@@ -236,7 +236,7 @@ AudioRecorder.destroy
 ### 预览截取摄像头
 ```
 /**
- * 相机预览
+ * 相机预览。注意，iOS第一次调用start可能预览画面被遮挡，需要关闭并重新开启或刷新页面
  * @param div {HTMLDivElement} 用于预览摄像头画面，宽高须和option中相同，内部为空。iOS不需要
  * @param option {object} height,width(最小宽高，Android为div的宽高) facing(front|back)摄像头方向 offsetX,offsetY(iOS下用于屏幕定位，注意预览框不随滚动条移动)。设备不满足要求会报错
  * @constructor
