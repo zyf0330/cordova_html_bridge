@@ -64,7 +64,7 @@ String filesystemPathForURL(LocalFilesystemURL url) {
 
 ```
 
-### Cordova构建准备工作
+### Cordova构建准备工作及注意事项
 * config.xml的content设置为网站入口地址，并根据whitelist规定添加网站目录根路径和其他可能需要的部分
 * 安装本地接口对应的插件
 * 放入静态资源
@@ -76,3 +76,4 @@ String filesystemPathForURL(LocalFilesystemURL url) {
             <uses-feature android:name="android.hardware.camera" />
             <uses-feature android:name="android.hardware.camera.autofocus" />
 ```
+* iOS必须有启动画面，否则屏幕尺寸有问题。包括contents.json和图片
