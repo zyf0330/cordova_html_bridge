@@ -16,9 +16,6 @@
 
 <a name="支持静态资源打包到 app 的特性"></a>
 ### 支持静态资源打包到 app 的特性 
-(#支持静态资源打包到 app 的特性) 
-[#支持静态资源打包到 app 的特性]
-
 静态资源放入www下对应的文件夹，html中引用路径改为`cdvfile://localhost/<%=locals.cdv_appDir%>/www/path_to_file`。
 >由于Android和iOS平台的appDir描述符不同，所以服务器需要根据userAgent指定。服务器代码：
 ```
