@@ -7,15 +7,15 @@
 * 通讯录：选取联系人、所有联系人
 * 推送通知：极光推送消息，需要全局加载（ios关闭推送同时需要提示用户关闭设置-通知<!--，silent-push功能无用-->）
 * 支付：beecloud支付，仅限于安卓
-* 媒体捕获：录制视频、录制音频、实时录制音频（暂时audio.src不支持设置为cdvfile，需要转换为DataURL）、预览截取摄像头
+* 媒体捕获：录制视频、录制音频、实时录制音频（暂时Audio.src不支持设置为cdvfile，需要转换为DataURL）、预览截取摄像头
 * 对外分享
 * 处理分享：仅限于Android，需要全局加载
 * IM：融云cordova插件。相关接口自行调用。
 * 存储：保存文件、获取本地文件、删除文件、解析本地链接
 * 其他：震动、切换音源、平台相关接口
 
-<a name="distinguishPlatformAppDir"></a>
-### 支持静态资源打包到app的特性
+<a name="支持静态资源打包到 app 的特性"></a>
+### 支持静态资源打包到 app 的特性
 静态资源放入www下对应的文件夹，html中引用路径改为`cdvfile://localhost/<%=locals.cdv_appDir%>/www/path_to_file`。
 >由于Android和iOS平台的appDir描述符不同，所以服务器需要根据userAgent指定。服务器代码：
 ```
@@ -34,6 +34,7 @@ app.use('/', function (req, res, next) {
 	res.locals.cdv_appDir = cdv_appDir;
 	next();
 });
+
 ```
 
 > 要支持cdvfile协议url，Android平台需修改cordova-file插件的`AssetFilesystem.java`文件的下面方法为下述形式，并在config.xml添加`<access origin="cdvfile://*" />`，后者的缺失会导致error url schema
@@ -46,7 +47,7 @@ String filesystemPathForURL(LocalFilesystemURL url) {
 ```
 
 ### 页面修改
-__关于`<%=locals.cdv_appDir%>`，参照<a href="#distinguishPlatformAppDir">上述</a>。__
+__关于`<%=locals.cdv_appDir%>`，参照[上述](#支持静态资源打包到 app 的特性)。__
 
 * 引入cordova.js `src='cdvfile://localhost/<%=locals.cdv_appDir%>/www/cordova.js'`
 * 引入本地接口js `src='cdvfile://localhost/<%=locals.cdv_appDir%>/www/native.js'`
@@ -76,3 +77,4 @@ __关于`<%=locals.cdv_appDir%>`，参照<a href="#distinguishPlatformAppDir">�
             <uses-feature android:name="android.hardware.camera.autofocus" />
 ```
 * iOS必须有启动画面，否则屏幕尺寸有问题。包括contents.json和图片
+* iOS无法使用也不需要amrnb.js来转换amr
