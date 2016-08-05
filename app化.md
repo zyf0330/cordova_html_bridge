@@ -47,7 +47,7 @@ String filesystemPathForURL(LocalFilesystemURL url) {
 ```
 
 ### 页面修改
-__关于`<%=locals.cdv_appDir%>`，参照[上述](#支持静态资源打包到 app 的特性)。__
+__关于`<%=locals.cdv_appDir%>`，参照[上述][#支持静态资源打包到 app 的特性]。__
 
 * 引入cordova.js `src='cdvfile://localhost/<%=locals.cdv_appDir%>/www/cordova.js'`
 * 引入本地接口js `src='cdvfile://localhost/<%=locals.cdv_appDir%>/www/native.js'`
