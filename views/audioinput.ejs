@@ -37,6 +37,7 @@
 	</div>
 	<div>
 		<button @click="towav">towav</button>
+		<button @click="toamr">toamr</button>
 		<button @click="draw">draw</button>
 	</div>
 	<div>
@@ -75,7 +76,14 @@
 				}, stopPlay: function () {
 					this.ar.stopPlay()
 				}, towav: function () {
-					return window.wav = this.ar.toWAV();
+					window.wav = this.ar.toWAV();
+					console.log('towav success')
+					return window.wav;
+				}, toamr: function () {
+					console.time('toamr')
+					window.amr = this.ar.toAMR();
+					console.timeEnd('toamr')
+					return window.amr;
 				}, clean: function () {
 					this.ar.clean();
 				}, destroy: function () {

@@ -1,3 +1,12 @@
+### 平台判断
+```
+/**
+ * 不是iOS就是Android
+ * @returns {boolean} 是否是iOS
+ */
+function isIOS(){
+```
+
 ### 所有联系人
 ```
 /**

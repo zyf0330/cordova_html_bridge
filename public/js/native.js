@@ -3,6 +3,18 @@
  */
 
 /**
+ * 不是iOS就是Android
+ * @returns {boolean} 是否是iOS
+ */
+function isIOS(){
+	if(window.device && device.platform){
+		return device.platform == 'iOS';
+	}else{
+		throw new Error('device is not ready');
+	}
+}
+
+/**
  * 让用户选取一个联系人
  * @param {function(Error, Object)} cb(err, contact) 返回err或联系人。contact：name(String),birthday(Date),address(Array),phone(Array),email(Array)
  */
@@ -160,12 +172,12 @@ function getFile(url, cb) {
 }
 
 /**
- * 保存文件到指定位置
+ * 保存文件到指定位置，返回文件路径
  * @param dir {string} 目录。形如a/b/c，可以以/开头结尾
  * @param filename {string} 文件名
  * @param toSave {String|File|Blob} 要保存的文件，或网络链接
  * @param option {Object} isCache保存到缓存位置 默认true，isPrivate是否应用私有(iOS始终私有) 默认true，isAppend追加写入 默认false
- * @param {function(Error, String)} cb(err,url) 返回保存后的文件url
+ * @param {function(Error, String, String)} cb(err, cdvfileUrl, nativeUrl) 返回cdvfile路径和本地文件路径
  */
 function saveFile(dir, filename, toSave, option, cb){
 	if(dir.endsWith('/') == false){
@@ -178,7 +190,7 @@ function saveFile(dir, filename, toSave, option, cb){
 	var isPrivate = typeof option.isPrivate == 'boolean' ? option.isPrivate : true;
 	var isAppend = typeof option.isAppend == 'boolean' ? option.isAppend : false;
 	var fsType;
-	if(device.platform == 'iOS'){
+	if(isIOS()){
 		isPrivate = true;
 	}
 	switch((isCache ? '1' : '0') + (isPrivate ? '1' : '0')){
@@ -196,7 +208,7 @@ function saveFile(dir, filename, toSave, option, cb){
 					if(typeof toSave == 'string' && toSave.indexOf('http') == 0){
 						var fileTransfer = new FileTransfer();
 						fileTransfer.download(toSave, fileEntry.toURL(), function (entry) {
-								cb(null, entry.toInternalURL());
+								cb(null, entry.toInternalURL(), entry.toURL());
 							}, function (err) {
 								cb(new Error(err.exception));
 							}, false, {
@@ -208,7 +220,7 @@ function saveFile(dir, filename, toSave, option, cb){
 					}else{
 						fileEntry.createWriter(function (fileWriter) {
 							fileWriter.onwriteend = function() {
-								cb(null, fileWriter.localURL);
+								cb(null, fileEntry.toInternalURL(), fileEntry.toURL());
 							};
 							fileWriter.onerror = function (e) {
 								cb(e);
@@ -312,7 +324,8 @@ function handleFileError(err){
  */
 function currentPosition(accuracyLimit, cb){
 	var geolocation = navigator.geolocation;
-	if(!geolocation){
+	//避免没有覆盖原geolocation对象
+	if(!geolocation || geolocation.constructor.toString().indexOf('Geolocation') > -1){
 		return cb(new Error('位置服务尚未准备好'));
 	}
 	accuracyLimit = accuracyLimit || 0;
@@ -387,7 +400,7 @@ function initNotification(openNotificationCallback, receiveNotificationCallback,
 			content: null,
 			optional: null
 		};
-		if(device.platform == "Android") {
+		if(isIOS() == false) {
 			notify_obj = jpush.openNotification;
 			notify.msg_id = notify_obj.extras['cn.jpush.android.MSG_ID'];
 			notify.title = notify_obj.title;
@@ -411,7 +424,7 @@ function initNotification(openNotificationCallback, receiveNotificationCallback,
 			content: null,
 			optional: null
 		};
-		if(device.platform == "Android") {
+		if(isIOS() == false) {
 			notify_obj = jpush.receiveNotification;
 			notify.msg_id = notify_obj.extras['cn.jpush.android.MSG_ID'];
 			notify.title = notify_obj.title;
@@ -441,7 +454,7 @@ function initNotification(openNotificationCallback, receiveNotificationCallback,
 			content: null,
 			optional: null
 		};
-		if(device.platform == "Android") {
+		if(isIOS() == false) {
 			notify_obj = window.plugins.jPushPlugin.receiveMessage;
 			notify.msg_id = notify_obj.extras['cn.jpush.android.MSG_ID'];
 			notify.content = notify_obj.message;
@@ -507,7 +520,7 @@ notification.isPushDenied = isPushDenied;
  * 设置本地的角标值。仅限iOS。私有接口
  */
 function setBadge(num){
-	if(device.platform != 'iOS'){
+	if(isIOS() == false){
 		return;
 	}
 	num = parseInt(num);
@@ -522,7 +535,7 @@ function setBadge(num){
  * @returns {number}
  */
 function getBadge(){
-	if(device.platform != 'iOS'){
+	if(isIOS() == false){
 		return;
 	}
 	var badgeNum = +localStorage.getItem('badgeNum');
@@ -535,7 +548,7 @@ notification.getBadge = getBadge;
  * @param num {number} 默认为1，大于0的整数
  */
 function reduceBadge(num){
-	if(device.platform != 'iOS'){
+	if(isIOS() == false){
 		return;
 	}
 	num = parseInt(num);
@@ -741,8 +754,15 @@ function share(option, cb){
 		if(!window.audioinput){
 			throw new Error('audioinput is not ready');
 		}
+		//引入amrnb.js
+		if(isIOS() == false){
+			var script = document.createElement('script');
+			script.src = 'cdvfile://localhost/assets/www/js/amrnb.js';
+			document.body.appendChild(script);
+		}
+
 		this.cfg = {
-			sampleRate: device.platform == 'iOS' ? audioinput.SAMPLERATE.CD_HALF_22050Hz : audioinput.SAMPLERATE.TELEPHONE_8000Hz,//TODO 等待修复
+			sampleRate: isIOS() ? audioinput.SAMPLERATE.CD_HALF_22050Hz : audioinput.SAMPLERATE.TELEPHONE_8000Hz,//TODO 等待修复
 			channels: audioinput.CHANNELS.MONO,
 			format: audioinput.FORMAT.PCM_16BIT,
 			normalize: true,
@@ -755,9 +775,7 @@ function share(option, cb){
 		this.noiseThreshold = 0;
 		//多个声道在一个数组交错
 		this.data = [];
-		this.audioContext = null;
-		this.source = null;
-		this.wav;
+		this.audioContext = this.source = this.wav = this.amr = null;
 		this.destroyed = false;
 		Object.defineProperty(this, 'isCapturing', {
 			get: function () {
@@ -779,7 +797,7 @@ function share(option, cb){
 
 			//声音检测震动
 			if(_this.isVibrate == true){
-				_this.noiseThreshold = device.platform == 'iOS' ? 0.008 : 0.015;
+				_this.noiseThreshold = isIOS() ? 0.008 : 0.020;
 				// if(_this.noiseThreshold == 0){
 				// 	var offset = -1, length = Math.max(Math.min(50, data.length), 1), filterArr = [];
 				// 	for (var i = 0; i < data.length; i++) {
@@ -923,6 +941,14 @@ function share(option, cb){
 			return this.wav = e.finish();
 		}
 	}
+	AudioRecorder.prototype.toAMR = function () {
+		if(!window.AMR){
+			throw new Error('AMR does not be required');
+		}
+		var uint8Arr = AMR.encode(this.data, this.cfg.sampleRate, AMR.Mode.MR122);
+		var blob = new Blob([uint8Arr], { type: 'audio/amr' });
+		return this.amr = blob;
+	}
 	/**
 	 * 清理录音数据
 	 */
@@ -974,7 +1000,7 @@ function share(option, cb){
 		if(!window.device){
 			throw new Error('device is not ready');
 		}
-		Object.defineProperty(this, 'isIOS', {value: device.platform == 'iOS'});
+		Object.defineProperty(this, 'isIOS', {value: isIOS()});
 		if(this.isIOS){
 			var cp = cordova.plugins && cordova.plugins.camerapreview;
 			if(!cp){

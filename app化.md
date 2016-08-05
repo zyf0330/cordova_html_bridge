@@ -12,9 +12,9 @@
 * 处理分享：仅限于Android，需要全局加载
 * IM：融云cordova插件。相关接口自行调用。
 * 存储：保存文件、获取本地文件、删除文件、解析本地链接
-* 其他：震动、切换音源
+* 其他：震动、切换音源、平台相关接口
 
-<a name="distinguishPlatformAppDir"/>
+<a name="distinguishPlatformAppDir"></a>
 ### 支持静态资源打包到app的特性
 静态资源放入www下对应的文件夹，html中引用路径改为`cdvfile://localhost/<%=locals.cdv_appDir%>/www/path_to_file`。
 >由于Android和iOS平台的appDir描述符不同，所以服务器需要根据userAgent指定。服务器代码：
@@ -46,8 +46,7 @@ String filesystemPathForURL(LocalFilesystemURL url) {
 ```
 
 ### 页面修改
-
- __关于`<%=locals.cdv_appDir%>`，参照<a href="#distinguishPlatformAppDir">上述</a>。__
+__关于`<%=locals.cdv_appDir%>`，参照<a href="#distinguishPlatformAppDir">上述</a>。__
 
 * 引入cordova.js `src='cdvfile://localhost/<%=locals.cdv_appDir%>/www/cordova.js'`
 * 引入本地接口js `src='cdvfile://localhost/<%=locals.cdv_appDir%>/www/native.js'`
