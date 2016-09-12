@@ -324,7 +324,7 @@ function handleFileError(err){
  */
 function currentPosition(accuracyLimit, cb){
 	var geolocation = navigator.geolocation;
-	//避免没有覆盖原geolocation对象
+	//避免没有覆盖HTML5原geolocation对象
 	if(!geolocation || geolocation.constructor.toString().indexOf('Geolocation') > -1){
 		return cb(new Error('位置服务尚未准备好'));
 	}
